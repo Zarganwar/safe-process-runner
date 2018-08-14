@@ -1,5 +1,5 @@
 {
-  "name": "Zarganwar/safe-process-runner",
+  "name": "zarganwar/safe-process-runner",
   "description": "PHP process runner with locking",
   "keywords": [
     "lock",
