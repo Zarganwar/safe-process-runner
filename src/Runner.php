@@ -3,22 +3,30 @@
 namespace Zarganwar\SafeProcessRunner;
 
 
+use Exception;
+use RuntimeException;
+
 class Runner
 {
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $lockPath;
 
-	public function __construct(string $lockPath)
+	/** @param string $lockPath */
+	public function __construct($lockPath)
 	{
 		$this->lockPath = $lockPath;
 	}
 
-	public function runCallable(string $id, callable $callable)
+	/**
+	 * @param string $id
+	 * @param callable $callable
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function runCallable($id, callable $callable)
 	{
 		if (!file_exists($this->lockPath) && !mkdir($this->lockPath, 0777, true) && !is_dir($this->lockPath)) {
-			throw new \RuntimeException(sprintf('Directory `%s` was not created', $this->lockPath));
+			throw new RuntimeException(sprintf('Directory `%s` was not created', $this->lockPath));
 		}
 
 		$resource = fopen($this->lockPath . '/' . $id . '.lock', 'w+');
@@ -29,7 +37,7 @@ class Runner
 
 		try {
 			call_user_func($callable);
-		} catch (\Throwable $e) {
+		} catch (Exception $e) {
 			throw $e;
 		} finally {
 			flock($resource, LOCK_UN);
