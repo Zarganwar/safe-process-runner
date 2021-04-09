@@ -5,9 +5,7 @@ namespace Zarganwar\SafeProcessRunner;
 
 class Runner
 {
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $lockPath;
 
 	public function __construct(string $lockPath)
@@ -21,7 +19,8 @@ class Runner
 			throw new \RuntimeException(sprintf('Directory `%s` was not created', $this->lockPath));
 		}
 
-		$resource = fopen($this->lockPath . '/' . $id . '.lock', 'w+');
+		$lock = $this->lockPath . '/' . md5($id) . '.lock';
+		$resource = fopen($lock, 'w+');
 		if (!flock($resource, LOCK_EX | LOCK_NB)) {  // acquire an exclusive lock
 			fclose($resource);
 			return false;
@@ -33,7 +32,7 @@ class Runner
 			throw $e;
 		} finally {
 			flock($resource, LOCK_UN);
-			unlink($this->lockPath . '/' . $id . '.lock');
+			unlink($lock);
 			fclose($resource);
 		}
 
